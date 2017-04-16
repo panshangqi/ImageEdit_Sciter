@@ -1,0 +1,426 @@
+// rect tracker implementation.
+function RectTracker(obj) {
+    var This = new Object();
+    const container = obj;
+    var tracker_pre_left=0;
+    var tracker_pre_top=0;
+    var tracker_pre_right=0;
+    var tracker_pre_bottom=0;
+    var tracker_left=0;
+    var tracker_top=0;
+    var tracker_right=0;
+    var tracker_bottom=0;
+    var start_x,start_y;
+    var cur_x,cur_y;
+    var dragging = false;
+    var isLeft = false;
+    var isRight = false;
+    var isTop = false;
+    var isBottom = false;
+    var isCenter = false;
+    This.isVisible = false;
+    function min(a,b){
+        return a<b?a:b;
+    }
+    function max(a,b){
+        return a>b?a:b;
+    }
+    function drawCanvas(gfx){
+        gc();
+        This.isVisible = true;
+        gfx.translate(0.5,0.5)
+            .strokeColor(color(61,61,245))
+            .strokeWidth(1)
+            .fillColor(color(61,61,245,0.1))
+            .rectangle(tracker_left,tracker_top,tracker_right-tracker_left,tracker_bottom-tracker_top);
+    }
+    This.getRectLeft = function(){
+        return tracker_left;
+    }
+    This.getRectTop = function(){
+        return tracker_top;
+    }
+    This.getRectRight = function(){
+        return tracker_right;
+    }
+    This.getRectBottom = function(){
+        return tracker_bottom;
+    }
+    This.hiddenTracker = function() {
+        tracker_left = 0;
+        tracker_top = 0;
+        tracker_right = 0;
+        tracker_bottom = 0;
+        container.paintForeground = null;
+        container.refresh();
+        This.isVisible = false;
+    }
+    This.showTracker = function(left,top,right,bottom){
+        tracker_left = left;
+        tracker_top = top;
+        tracker_right = right;
+        tracker_bottom = bottom;
+        container.paintForeground = drawCanvas;
+        container.refresh();
+    }
+
+    function onMouseDown(event){
+        if(event.buttons == 0x02)//鼠标右键
+        {
+            dragging = true;
+            start_x = event.x;
+            start_y = event.y;
+            container.paintForeground = drawCanvas;
+        }
+        else if(event.buttons == 0x01)
+        {
+            container.refresh();
+            if(event.x > tracker_left - 10 && event.x < tracker_left + 10 && event.y > tracker_top && event.y < tracker_bottom)
+            {
+                start_x = event.x;
+                tracker_pre_left = tracker_left;
+                isLeft = true;
+            }
+            else if(event.x > tracker_right - 10 && event.x < tracker_right + 10 && event.y > tracker_top && event.y < tracker_bottom)
+            {
+                start_x = event.x;
+                tracker_pre_right = tracker_right;
+                isRight = true;
+            }
+            else if(event.y > tracker_top - 10 && event.y < tracker_top + 10 && event.x > tracker_left && event.x < tracker_right)
+            {
+                start_y = event.y;
+                tracker_pre_top = tracker_top;
+                isTop = true;
+            }
+            else if(event.y > tracker_bottom - 10 && event.y < tracker_bottom + 10 && event.x > tracker_left && event.x < tracker_right)
+            {
+                start_y = event.y;
+                tracker_pre_bottom = tracker_bottom;
+                isBottom = true;
+            }
+            else if(event.x > tracker_left && event.x < tracker_right && event.y > tracker_top && event.y < tracker_bottom)
+            {
+                start_x = event.x;
+                start_y = event.y;
+                tracker_pre_left = tracker_left;
+                tracker_pre_right = tracker_right;
+                tracker_pre_top = tracker_top;
+                tracker_pre_bottom = tracker_bottom;
+                isCenter = true;
+            }
+        }
+    }
+    function onMouseMove(event){
+        if(event.x > tracker_left - 10 && event.x < tracker_left + 10 && event.y > tracker_top && event.y < tracker_bottom)
+        {
+            container.style["cursor"]="w-resize";
+        }
+        else if(event.x > tracker_right - 10 && event.x < tracker_right + 10 && event.y > tracker_top && event.y < tracker_bottom)
+        {
+            container.style["cursor"]="e-resize";
+        }
+        else if(event.y > tracker_top - 10 && event.y < tracker_top + 10 && event.x > tracker_left && event.x < tracker_right)
+        {
+            container.style["cursor"]="n-resize";
+        }
+        else if(event.y > tracker_bottom - 10 && event.y < tracker_bottom + 10 && event.x > tracker_left && event.x < tracker_right)
+        {
+            container.style["cursor"]="s-resize";
+        }
+        else if(event.x > tracker_left && event.x < tracker_right && event.y > tracker_top && event.y < tracker_bottom)
+        {
+            container.style["cursor"]="pointer";
+        }
+        else{
+            container.style["cursor"]="default";
+        }
+        if(dragging)
+        {
+            gc();
+            cur_x = event.x;
+            cur_y = event.y;
+            tracker_left = min(start_x,cur_x);
+            tracker_top = min(start_y,cur_y);
+            tracker_right = max(start_x,cur_x);
+            tracker_bottom = max(start_y,cur_y);
+            container.refresh();
+        }
+        else if(isLeft)
+        {
+            if(tracker_pre_left + event.x - start_x < tracker_right - 50)
+            {
+                tracker_left = tracker_pre_left + event.x - start_x;
+                container.refresh();
+            }
+        }
+        else if(isRight)
+        {
+            if(tracker_pre_right + event.x - start_x > tracker_left + 50)
+            {
+                tracker_right = tracker_pre_right + event.x - start_x;
+                container.refresh();
+            }
+        }
+        else if(isTop)
+        {
+            if(tracker_pre_top + event.y - start_y < tracker_bottom - 20)
+            {
+                tracker_top = tracker_pre_top + event.y - start_y;
+                container.refresh();
+            }
+        }
+        else if(isBottom)
+        {
+            if(tracker_pre_bottom + event.y - start_y > tracker_top + 20)
+            {
+                tracker_bottom = tracker_pre_bottom + event.y - start_y;
+                container.refresh();
+            }
+        }
+        else if(isCenter)
+        {
+            tracker_left = tracker_pre_left + event.x - start_x;
+            tracker_right = tracker_pre_right + event.x - start_x;
+            tracker_top = tracker_pre_top + event.y - start_y;
+            tracker_bottom = tracker_pre_bottom + event.y - start_y;
+            container.refresh();
+        }
+    }
+    function onMouseUp(event){
+        dragging = false;
+        isLeft = false;
+        isRight = false;
+        isTop = false;
+        isBottom = false;
+        isCenter = false;
+
+    }
+    function onMouseLeave(){
+        isLeft = false;
+        isRight = false;
+        isTop = false;
+        isBottom = false;
+        isCenter = false;
+    }
+    container.subscribe("mousedown",onMouseDown);
+    container.subscribe("mousemove",onMouseMove);
+    container.subscribe("mouseup",onMouseUp);
+    container.subscribe("mouseleave",onMouseLeave);
+
+    return This;
+}
+/*
+function RectTracker(obj) {
+    var This = new Object();
+    const container = obj;
+    var tracker_pre_left=0;
+    var tracker_pre_top=0;
+    var tracker_pre_right=0;
+    var tracker_pre_bottom=0;
+    var tracker_left=0;
+    var tracker_top=0;
+    var tracker_right=0;
+    var tracker_bottom=0;
+    var start_x,start_y;
+    var cur_x,cur_y;
+    var dragging = false;
+    var isLeft = false;
+    var isRight = false;
+    var isTop = false;
+    var isBottom = false;
+    var isCenter = false;
+    This.isVisible = false;
+    function min(a,b){
+        return a<b?a:b;
+    }
+    function max(a,b){
+        return a>b?a:b;
+    }
+    function drawCanvas(gfx){
+        gc();
+        This.isVisible = true;
+        gfx.translate(0.5,0.5)
+            .strokeColor(color(61,61,245))
+            .strokeWidth(1)
+            .fillColor(color(61,61,245,0.1))
+            .rectangle(tracker_left,tracker_top,tracker_right-tracker_left,tracker_bottom-tracker_top);
+    }
+    This.getRectLeft = function(){
+        return tracker_left;
+    }
+    This.getRectTop = function(){
+        return tracker_top;
+    }
+    This.getRectRight = function(){
+        return tracker_right;
+    }
+    This.getRectBottom = function(){
+        return tracker_bottom;
+    }
+    This.hiddenTracker = function() {
+        tracker_left = 0;
+        tracker_top = 0;
+        tracker_right = 0;
+        tracker_bottom = 0;
+        container.paintForeground = null;
+        container.refresh();
+        This.isVisible = false;
+    }
+    This.showTracker = function(left,top,right,bottom){
+        tracker_left = left;
+        tracker_top = top;
+        tracker_right = right;
+        tracker_bottom = bottom;
+        container.paintForeground = drawCanvas;
+        container.refresh();
+    }
+
+    function onMouseDown(event){
+        if(event.buttons == 0x02)//鼠标右键
+        {
+            dragging = true;
+            start_x = event.x;
+            start_y = event.y;
+            container.paintForeground = drawCanvas;
+        }
+        else if(event.buttons == 0x01)
+        {
+            container.refresh();
+            if(event.x > tracker_left - 10 && event.x < tracker_left + 10 && event.y > tracker_top && event.y < tracker_bottom)
+            {
+                start_x = event.x;
+                tracker_pre_left = tracker_left;
+                isLeft = true;
+            }
+            else if(event.x > tracker_right - 10 && event.x < tracker_right + 10 && event.y > tracker_top && event.y < tracker_bottom)
+            {
+                start_x = event.x;
+                tracker_pre_right = tracker_right;
+                isRight = true;
+            }
+            else if(event.y > tracker_top - 10 && event.y < tracker_top + 10 && event.x > tracker_left && event.x < tracker_right)
+            {
+                start_y = event.y;
+                tracker_pre_top = tracker_top;
+                isTop = true;
+            }
+            else if(event.y > tracker_bottom - 10 && event.y < tracker_bottom + 10 && event.x > tracker_left && event.x < tracker_right)
+            {
+                start_y = event.y;
+                tracker_pre_bottom = tracker_bottom;
+                isBottom = true;
+            }
+            else if(event.x > tracker_left && event.x < tracker_right && event.y > tracker_top && event.y < tracker_bottom)
+            {
+                start_x = event.x;
+                start_y = event.y;
+                tracker_pre_left = tracker_left;
+                tracker_pre_right = tracker_right;
+                tracker_pre_top = tracker_top;
+                tracker_pre_bottom = tracker_bottom;
+                isCenter = true;
+            }
+        }
+    }
+    function onMouseMove(event){
+        if(event.x > tracker_left - 10 && event.x < tracker_left + 10 && event.y > tracker_top && event.y < tracker_bottom)
+        {
+            container.style["cursor"]="w-resize";
+        }
+        else if(event.x > tracker_right - 10 && event.x < tracker_right + 10 && event.y > tracker_top && event.y < tracker_bottom)
+        {
+            container.style["cursor"]="e-resize";
+        }
+        else if(event.y > tracker_top - 10 && event.y < tracker_top + 10 && event.x > tracker_left && event.x < tracker_right)
+        {
+            container.style["cursor"]="n-resize";
+        }
+        else if(event.y > tracker_bottom - 10 && event.y < tracker_bottom + 10 && event.x > tracker_left && event.x < tracker_right)
+        {
+            container.style["cursor"]="s-resize";
+        }
+        else if(event.x > tracker_left && event.x < tracker_right && event.y > tracker_top && event.y < tracker_bottom)
+        {
+            container.style["cursor"]="pointer";
+        }
+        else{
+            container.style["cursor"]="default";
+        }
+        if(dragging)
+        {
+            gc();
+            cur_x = event.x;
+            cur_y = event.y;
+            tracker_left = min(start_x,cur_x);
+            tracker_top = min(start_y,cur_y);
+            tracker_right = max(start_x,cur_x);
+            tracker_bottom = max(start_y,cur_y);
+            container.refresh();
+        }
+        else if(isLeft)
+        {
+            if(tracker_pre_left + event.x - start_x < tracker_right - 50)
+            {
+                tracker_left = tracker_pre_left + event.x - start_x;
+                container.refresh();
+            }
+        }
+        else if(isRight)
+        {
+            if(tracker_pre_right + event.x - start_x > tracker_left + 50)
+            {
+                tracker_right = tracker_pre_right + event.x - start_x;
+                container.refresh();
+            }
+        }
+        else if(isTop)
+        {
+            if(tracker_pre_top + event.y - start_y < tracker_bottom - 20)
+            {
+                tracker_top = tracker_pre_top + event.y - start_y;
+                container.refresh();
+            }
+        }
+        else if(isBottom)
+        {
+            if(tracker_pre_bottom + event.y - start_y > tracker_top + 20)
+            {
+                tracker_bottom = tracker_pre_bottom + event.y - start_y;
+                container.refresh();
+            }
+        }
+        else if(isCenter)
+        {
+            tracker_left = tracker_pre_left + event.x - start_x;
+            tracker_right = tracker_pre_right + event.x - start_x;
+            tracker_top = tracker_pre_top + event.y - start_y;
+            tracker_bottom = tracker_pre_bottom + event.y - start_y;
+            container.refresh();
+        }
+    }
+    function onMouseUp(event){
+        dragging = false;
+        isLeft = false;
+        isRight = false;
+        isTop = false;
+        isBottom = false;
+        isCenter = false;
+
+    }
+    function onMouseLeave(){
+        isLeft = false;
+        isRight = false;
+        isTop = false;
+        isBottom = false;
+        isCenter = false;
+    }
+    container.subscribe("mousedown",onMouseDown);
+    container.subscribe("mousemove",onMouseMove);
+    container.subscribe("mouseup",onMouseUp);
+    container.subscribe("mouseleave",onMouseLeave);
+
+    return This;
+}
+*/
+

@@ -1,0 +1,80 @@
+﻿生成启动时间为 2017/3/24 21:37:54。
+     1>项目“E:\C++Project\PC_ImageEdit_Sciter\PC_ImageEdit_Sciter\PC_ImageEdit_Sciter.vcxproj”在节点 2 上(Rebuild 个目标)。
+     1>ClCompile:
+         E:\VisualStudio2013\VC\bin\x86_amd64\CL.exe /c /I"./sciter-include" /I./mupdf /Zi /nologo /W3 /WX- /Od /D NO_WARN_MBCS_MFC_DEPRECATION /D _WINDOWS /D _DEBUG /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"x64\Debug\PC_ImageEdit_Sciter.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         E:\VisualStudio2013\VC\bin\x86_amd64\CL.exe /c /I"./sciter-include" /I./mupdf /Zi /nologo /W3 /WX- /Od /D NO_WARN_MBCS_MFC_DEPRECATION /D _WINDOWS /D _DEBUG /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Debug\PC_ImageEdit_Sciter.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt ChildView.cpp MainFrm.cpp ImageEditApp.cpp MuPDFConvert.cpp Pdf2Png.cpp
+         Pdf2Png.cpp
+     1>e:\c++project\pc_imageedit_sciter\pc_imageedit_sciter\mupdf/fitz.h(132): warning C4005: “UNUSED”: 宏重定义
+                 E:\VisualStudio2013\VC\atlmfc\include\afx.h(402) : 参见“UNUSED”的前一个定义
+     1>Pdf2Png.cpp(46): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+     1>Pdf2Png.cpp(48): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+     1>Pdf2Png.cpp(55): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+     1>Pdf2Png.cpp(57): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+         MuPDFConvert.cpp
+     1>e:\c++project\pc_imageedit_sciter\pc_imageedit_sciter\mupdf/fitz.h(132): warning C4005: “UNUSED”: 宏重定义
+                 E:\VisualStudio2013\VC\atlmfc\include\afx.h(402) : 参见“UNUSED”的前一个定义
+     1>MuPDFConvert.cpp(73): warning C4101: “tempPath”: 未引用的局部变量
+     1>MuPDFConvert.cpp(164): warning C4101: “start”: 未引用的局部变量
+         ImageEditApp.cpp
+         MainFrm.cpp
+         ChildView.cpp
+     1>ChildView.cpp(134): warning C4267: “参数”: 从“size_t”转换到“unsigned int”，可能丢失数据
+     1>ChildView.cpp(171): warning C4267: “参数”: 从“size_t”转换到“unsigned int”，可能丢失数据
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _DEBUG /l"0x0804" /Ix64\Debug\ /nologo /fo"x64\Debug\PC_ImageEdit_Sciter.res" PC_ImageEdit_Sciter.rc 
+       Link:
+         E:\VisualStudio2013\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\C++Project\PC_ImageEdit_Sciter\x64\Debug\PC_ImageEdit_Sciter.exe" /INCREMENTAL /NOLOGO /LIBPATH:./mupdf /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:E:\VisualStudio2013\VC\Include\Manifest\dpiaware.manifest /PDB:"E:\C++Project\PC_ImageEdit_Sciter\x64\Debug\PC_ImageEdit_Sciter.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\C++Project\PC_ImageEdit_Sciter\x64\Debug\PC_ImageEdit_Sciter.lib" /MACHINE:X64 x64\Debug\PC_ImageEdit_Sciter.res
+         x64\Debug\ChildView.obj
+         x64\Debug\MainFrm.obj
+         x64\Debug\ImageEditApp.obj
+         x64\Debug\MuPDFConvert.obj
+         x64\Debug\Pdf2Png.obj
+         x64\Debug\stdafx.obj
+         mupdf\libmupdf.lib
+         sciter.lib
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_var_imp，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_push_try，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_throw_imp，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_rethrow，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_flush_warnings，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_new_context，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_free_context，该符号在函数 "public: __cdecl CMuPDFConvert::~CMuPDFConvert(void)" (??1CMuPDFConvert@@QEAA@XZ) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_set_aa_level，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_free，该符号在函数 fz_free_colorspace_imp 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_concat，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_scale，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_rotate，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_round_rect，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_transform_rect，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_open_file_w，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_close，该符号在函数 "public: __cdecl CMuPDFConvert::~CMuPDFConvert(void)" (??1CMuPDFConvert@@QEAA@XZ) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_new_pixmap_with_bbox，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_drop_pixmap，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_clear_pixmap_with_value，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_clear_pixmap，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_invert_pixmap，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_gamma_pixmap，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_unmultiply_pixmap，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_write_png，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_free_device，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_new_draw_device，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_new_display_list，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_new_list_device，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_run_display_list，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_free_display_list，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_open_document_with_stream，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_close_document，该符号在函数 "public: __cdecl CMuPDFConvert::~CMuPDFConvert(void)" (??1CMuPDFConvert@@QEAA@XZ) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_needs_password，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_count_pages，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_load_page，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_bound_page，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_run_page，该符号在函数 "private: void __cdecl CMuPDFConvert::drawpage(struct fz_context_s *,struct fz_document_s *,int)" (?drawpage@CMuPDFConvert@@AEAAXPEAUfz_context_s@@PEAUfz_document_s@@H@Z) 中被引用
+     1>MuPDFConvert.obj : error LNK2019: 无法解析的外部符号 fz_free_page，该符号在函数 "public: bool __cdecl CMuPDFConvert::Pdf2Png(wchar_t const *,char const *,char const *,int &)" (?Pdf2Png@CMuPDFConvert@@QEAA_NPEB_WPEBD1AEAH@Z) 中被引用
+     1>E:\C++Project\PC_ImageEdit_Sciter\x64\Debug\PC_ImageEdit_Sciter.exe : fatal error LNK1120: 38 个无法解析的外部命令
+     1>已完成生成项目“E:\C++Project\PC_ImageEdit_Sciter\PC_ImageEdit_Sciter\PC_ImageEdit_Sciter.vcxproj”(Rebuild 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:12.89

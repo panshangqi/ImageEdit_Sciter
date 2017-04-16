@@ -1,0 +1,7 @@
+function clock(hour){
+    var obj = new Object();
+    obj.hour = hour;
+
+
+    return obj;
+}
