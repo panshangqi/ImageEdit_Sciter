@@ -1,6 +1,7 @@
 
 var filelist = [];
-var cutImageList = [];
+var cutQuestionList = [];
+var cutGraphicsList = [];
 var pictureList = [];
 var picturePxList=[];
 
@@ -11,6 +12,9 @@ var curWidth = 700;
 var maxWidth = 1400;
 var minWidth = 500;
 var trackerObj = [];
+
+var questionsTextList = [];
+
 function alert(msg)
 {
     view.msgbox(null,msg+"");
@@ -21,17 +25,16 @@ function getValue(divID,divAttr)
     var m_no = m_id.substring(0,m_id.length-2).toInteger();
     return m_no;
 }
-function printf(msg)
-{
-    $(#console).append(msg+"<br/>");
-}
+
 function init()
 {
     filelist = [];
-    cutImageList = [];
+    cutQuestionList = [];
+    cutGraphicsList = [];
     pictureList = [];
     picturePxList=[];
     trackerObj = [];
+    questionsTextList = [];
     pictureListSize = 0;
     curFoucsID = 0;
     rectID=0;
@@ -64,7 +67,7 @@ function updateNavBox()
         $(#pictureCanvas_{i}).style["width"] = "700px";
         gc();
         $(#pictureCanvas_{i}).style["height"] = mHeight+"px";
-        var obj = RectTracker($(#pictureCanvas_{i}));
+        var obj = RectTracker($(#pictureCanvas_{i}),i);
         trackerObj.push(obj);
         $(#pictureCanvas_{i}).on("mouseleave",function(){
 
@@ -122,17 +125,18 @@ function loadProgressCb(m_id,total,pngPath)
     $(#cur_value_bar).style["width"] = curV+"%";
     filelist.push(pngPath);
 }
-function loadProgressDone(ocr_pageList)
+function loadProgressDone(ocr_questionList,ocr_graphicsList)
 {
 
     updateNavBox();
     $(#cur_value_bar).remove();
     $(#progress_bar).remove();
     $(#load_progress_box).remove();
-    for(var i=0;i<ocr_pageList.length;i++)
+    for(var i=0;i<ocr_questionList.length;i++)
     {
-        var ocr_rectlist = ocr_pageList[i];
-        for(var j=0;j<ocr_rectlist.length;j++)
+
+        var ocr_rectlist = ocr_questionList[i];
+        for(var j=0;j<ocr_rectlist.length-1;j++)
         {
             $(#pictureCanvas_{i}).$append(<div class="rect_box" #rect_{rectID}  id="rect_{rectID}"></div>);
             var mLeft = ocr_rectlist[j][0];
@@ -147,6 +151,7 @@ function loadProgressDone(ocr_pageList)
             var orgHeight = (mHeight*g_rate).toInteger();
             var item = {
                 id:rectID,
+                type:1;
                 left:orgLeft,
                 top:orgTop,
                 width:orgWidth,
@@ -162,6 +167,51 @@ function loadProgressDone(ocr_pageList)
             $(#rect_{rectID}).style["width"] = mWidth+"px";
             gc();
             $(#rect_{rectID}).style["height"] = mHeight +"px";
+            rectID++;
+        }
+    }
+
+    for(var i=0;i<ocr_graphicsList.length;i++)
+    {
+        var ocr_rectlist = ocr_graphicsList[i];
+
+        for(var j=0;j<ocr_rectlist.length-1;j++)
+        {
+
+            $(#pictureCanvas_{i}).$append(<div class="rect_box" #rect_{rectID}  id="rect_{rectID}"></div>);
+            var mLeft = ocr_rectlist[j][0];
+            var mTop = ocr_rectlist[j][1];
+            var mWidth = ocr_rectlist[j][2];
+            var mHeight = ocr_rectlist[j][3];
+
+            var g_rate = 700.0/curWidth;
+            var orgLeft = (mLeft*g_rate).toInteger();
+            var orgTop = (mTop*g_rate).toInteger();
+            var orgWidth = (mWidth*g_rate).toInteger();
+            var orgHeight = (mHeight*g_rate).toInteger();
+            var item = {
+                id:rectID,
+                type:0;
+                left:orgLeft,
+                top:orgTop,
+                width:orgWidth,
+                height:orgHeight
+            };
+
+            pictureList[i].rectList.push(item);
+
+            gc();
+            $(#rect_{rectID}).style["left"] = mLeft+"px";
+            gc();
+            $(#rect_{rectID}).style["top"] = mTop +"px";
+            gc();
+            $(#rect_{rectID}).style["width"] = mWidth+"px";
+            gc();
+            $(#rect_{rectID}).style["height"] = mHeight +"px";
+            gc();
+            $(#rect_{rectID}).style["background-color"] = "#FFD70020";
+            gc();
+            $(#rect_{rectID}).style["border"] = "1px solid #FFD700";
             rectID++;
         }
     }
@@ -185,7 +235,7 @@ function loadProgressDone(ocr_pageList)
                     var orgTop = (pictureList[curFoucsID].rectList[i].top*g_rate).toInteger();
                     var orgWidth = (pictureList[curFoucsID].rectList[i].width*g_rate).toInteger();
                     var orgHeight = (pictureList[curFoucsID].rectList[i].height*g_rate).toInteger();
-                    tracker.showTracker(orgLeft,orgTop,orgLeft+orgWidth,orgTop+orgHeight);
+                    tracker.showTracker(orgLeft,orgTop,orgWidth,orgHeight);
                     this.remove();
                     break;
                 }
@@ -193,8 +243,6 @@ function loadProgressDone(ocr_pageList)
         })
 
     }
-
-
 }
 function get_OCR_init()
 {
@@ -204,7 +252,8 @@ function get_OCR_Pb(percent,questionText)
 {
     $(#ocr_box).content(percent+"");
     $(#edit_box).$append(<textarea class="question_text" #cut_{percent} id="cut_{percent}"></textarea>);
-    $(#cut_{percent}).appendText(questionText);
+    questionsTextList.push(percent);
+    $(#cut_{percent}).content(questionText);
 }
 function get_OCR_Done()
 {
@@ -212,50 +261,50 @@ function get_OCR_Done()
 }
 $(#flush_button).on("click",function(){
 
+    for(var i=0;i<questionsTextList.length;i++)
+    {
+        $(#cut_{questionsTextList[i]}).content("");
+    }
+    $(#edit_box).clear();
 
-    var templist=[];
+    var temp_questions_list=[];
+    var temp_graphics_list=[];
     for(var i=0;i<pictureListSize;i++)
     {
-        var rectList=[];
+        var page_questions_list=[];
+        var page_graphics_list=[];
         for(var j=0;j<pictureList[i].rectList.length;j++)
         {
             var m_id = pictureList[i].rectList[j].id.toInteger();
+            var m_type = pictureList[i].rectList[j].type.toInteger();
             var obj = $(#rect_{m_id});
             if(obj)
             {
-                var item = [];
-                item.push(pictureList[i].rectList[j].left);
-                item.push(pictureList[i].rectList[j].top);
-                item.push(pictureList[i].rectList[j].width);
-                item.push(pictureList[i].rectList[j].height);
-                rectList.push(item);
+                if(m_type == 1)
+                {
+                    var item = [];
+                    item.push(pictureList[i].rectList[j].left);
+                    item.push(pictureList[i].rectList[j].top);
+                    item.push(pictureList[i].rectList[j].width);
+                    item.push(pictureList[i].rectList[j].height);
+                    page_questions_list.push(item);
+                }
+                else{
+                    var item = [];
+                    item.push(pictureList[i].rectList[j].left);
+                    item.push(pictureList[i].rectList[j].top);
+                    item.push(pictureList[i].rectList[j].width);
+                    item.push(pictureList[i].rectList[j].height);
+                    page_graphics_list.push(item);
+                }
             }
         }
-        templist.push(rectList);
+        temp_questions_list.push(page_questions_list);
+        temp_graphics_list.push(page_graphics_list);
     }
 
-    view.getImageCutList(templist);
-    //alert(cutImageList.length);
-    /*
-    $(#edit_box).clear();
-    for(var i=0;i<cutImageList.length;i++)
-    {
-        $(#edit_box).$append(<img #cut_{i} id="cut_{i}"/>);
-        gc();
-        $(#cut_{i}).attributes["src"] = cutImageList[i];
-        $(#cut_{i}).on("click",function(){
-            //view.dialog();
-        });
-    }
-    */
-    /*
-    $(#edit_box).clear();
+    view.getImageCutList(temp_questions_list,temp_graphics_list);
 
-    for(var i=0;i<cutImageList.length;i++)
-    {
-
-    }
-    */
 })
 function updateRectListWH(sub)
 {
@@ -297,8 +346,8 @@ function windowKeyHandler() // install movable window handler
 
             var mLeft = tracker.getRectLeft();
             var mTop = tracker.getRectTop();
-            var mWidth = tracker.getRectRight() - mLeft;
-            var mHeight = tracker.getRectBottom()-mTop;
+            var mWidth = tracker.getRectWidth();
+            var mHeight = tracker.getRectHeight();
 
             if(mWidth > 5 && mHeight > 5)
             {
@@ -327,7 +376,7 @@ function windowKeyHandler() // install movable window handler
                             var orgTop = (pictureList[curFoucsID].rectList[i].top*g_rate).toInteger();
                             var orgWidth = (pictureList[curFoucsID].rectList[i].width*g_rate).toInteger();
                             var orgHeight = (pictureList[curFoucsID].rectList[i].height*g_rate).toInteger();
-                            tracker.showTracker(orgLeft,orgTop,orgLeft+orgWidth,orgTop+orgHeight);
+                            tracker.showTracker(orgLeft,orgTop,orgWidth,orgHeight);
                             this.remove();
                             break;
                         }
@@ -341,6 +390,7 @@ function windowKeyHandler() // install movable window handler
                 var orgHeight = (mHeight*g_rate).toInteger();
                 var item = {
                     id:rectID,
+                    type:1,
                     left:orgLeft,
                     top:orgTop,
                     width:orgWidth,
@@ -355,6 +405,25 @@ function windowKeyHandler() // install movable window handler
         else if(event.keyCode == 192)// ~ key
         {
             //updateRectListWH();
+        }
+
+        else if(event.keyCode == 46) //"del"
+        {
+
+            var tracker = trackerObj[curFoucsID];
+            tracker.hiddenTracker();
+        }
+    }
+    function onKeyUp(event)
+    {
+
+        if(event.keyCode == 17)
+        {
+            is_ctrl = true;
+        }
+        else if(event.keyCode == 67)
+        {
+            is_c = true;
         }
         else if(event.keyCode == 219) //"[" 缩小
         {
@@ -401,67 +470,51 @@ function windowKeyHandler() // install movable window handler
                 updateRectListWH(5);
             }
         }
-
-        else if(event.keyCode == 46) //"del"
-        {
-
-            var tracker = trackerObj[curFoucsID];
-            tracker.hiddenTracker();
-        }
-    }
-    function onKeyUp(event)
-    {
-        if(event.keyCode == 17)
-        {
-            is_ctrl = true;
-        }
-        else if(event.keyCode == 67)
-        {
-            is_c = true;
-        }
         if(is_ctrl && is_c)
         {
             is_c = false;
             is_ctrl = false;
+
+            if(pictureListSize==0)
+                return;
+            var g_rate = 700.0 / curWidth;
+
+            var rect = [];
+            var tracker = trackerObj[curFoucsID];
+
+            var mLeft = (tracker.getRectLeft()*g_rate).toInteger();
+            var mTop = (tracker.getRectTop()*g_rate).toInteger();
+            var mWidth = (tracker.getRectWidth()*g_rate).toInteger();
+            var mHeight = (tracker.getRectHeight()*g_rate).toInteger();
+            if(tracker.isVisible == false)
             {
-                if(pictureListSize==0)
-                    return;
-                var g_rate = 700.0 / curWidth;
-
-                var rect = [];
-                var tracker = trackerObj[curFoucsID];
-                var mLeft = (tracker.getRectLeft()*g_rate).toInteger();
-                var mTop = (tracker.getRectTop()*g_rate).toInteger();
-                var mWidth = (tracker.getRectRight()*g_rate).toInteger() - mLeft;
-                var mHeight = (tracker.getRectBottom()*g_rate).toInteger() - mTop;
-                if(tracker.isVisible == false)
-                {
-                    return;
-                }
-                rect.push(mLeft);
-                rect.push(mTop);
-                rect.push(mWidth);
-                rect.push(mHeight);
-                function copyedInit(ti)
-                {
-                    gc();
-                    $(#main_frame).$append(<div class="copyed" #copyed>复制完成</div>);
-                    gc();
-                    $(#copyed).style["background-color"] = "#555555ff";
-                }
-                function copyedDone(ti)
-                {
-                    if(ti==0)
-                    {
-                        gc();
-                        $(#copyed).style["background-color"] = "#55555500";
-                    }
-                    else if(ti==1)
-                    $(#copyed).remove();
-                }
-                view.copyBmpToClipboard(curFoucsID,rect,copyedInit,copyedDone);
-
+                return;
             }
+
+            rect.push(mLeft);
+            rect.push(mTop);
+            rect.push(mWidth);
+            rect.push(mHeight);
+            function copyedInit(ti)
+            {
+                gc();
+                $(#main_frame).$append(<div class="copyed" #copyed>复制完成</div>);
+                gc();
+                $(#copyed).style["background-color"] = "#555555ff";
+            }
+            function copyedDone(ti)
+            {
+                if(ti==0)
+                {
+                    gc();
+                    $(#copyed).style["background-color"] = "#55555500";
+                }
+                else if(ti==1)
+                $(#copyed).remove();
+            }
+            view.copyBmpToClipboard(curFoucsID,rect,copyedInit,copyedDone);
+
+
         }
     }
     view.root.subscribe(onKeyDown, Event.KEY, Event.KEY_DOWN );

@@ -57,7 +57,16 @@ body{
     overflow: hidden;
 
 }
-
+.rectTracker{
+    position: absolute;
+    left:0px;
+    top:0px;
+    height:0px;
+    width:0px;
+    border:1px solid #395df4;
+    background-color: #395df415;
+    z-index: 20px;
+}
 .rect_box{
     position: absolute;
     color:#FFD70000;

@@ -49,13 +49,13 @@ public:
 	sciter::sync::gui_thread_ctx _;
 	json::value loadWeb();
 	sciter::value getPicPxList();
-	sciter::value getImageCutList(sciter::value cutList);
+	sciter::value getImageCutList(sciter::value cut_questions_list, sciter::value cut_graphics_list);
 	json::value copyBmpToClipboard(json::value pageid, json::value rect, json::value copyedInit, json::value copyedDone);
 
 	BEGIN_FUNCTION_MAP
 		FUNCTION_0("loadWeb", loadWeb)
 		FUNCTION_0("getPicPxList", getPicPxList)
-		FUNCTION_1("getImageCutList", getImageCutList)
+		FUNCTION_2("getImageCutList", getImageCutList)
 		FUNCTION_4("copyBmpToClipboard", copyBmpToClipboard)
 	END_FUNCTION_MAP
 

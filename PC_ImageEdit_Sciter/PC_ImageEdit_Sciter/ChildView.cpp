@@ -139,11 +139,15 @@ sciter::value CChildView::getPicPxList()
 	}
 	return sciter::value(arr,m_fileList.size());
 }
-void thread_ocr(sciter::value cutList)
+struct cut_params
+{
+	sciter::value cut_questions_list;
+	sciter::value cut_graphics_list;
+};
+void thread_ocr(cut_params params)
 {
 	
 	m_root.call_function("get_OCR_init");
-	
 	
 	TCHAR appDataPath[MAX_PATH];
 	TCHAR tempDir[MAX_PATH];
@@ -153,22 +157,24 @@ void thread_ocr(sciter::value cutList)
 	sprintf(tempDir, "%s\\17zuoye\\cache", appDataPath);
 	CreateDirectory(tempDir, NULL);
 	//AfxMessageBox("haha");
-	sciter::value arr = cutList;
+	int pageNum = params.cut_questions_list.length();
+
 	int count = 0;
 	m_cutImageList.clear();
-
-	sciter::value array[1000];
-	int arr_num = 0;
-	int questionNum = 1;
-	for (int i = 0; i < arr.length(); i++)
+	sciter::value result[1000];
+	int resultNum = 1;
+	for (int i = 0; i < pageNum; i++)
 	{
-		sciter::value rectList = arr[i];
-		cv::Mat img = cv::imread(m_fileList[i].GetBuffer());
+		sciter::value page_questions_list = params.cut_questions_list[i];
+		sciter::value page_graphics_list = params.cut_graphics_list[i];
 
-		std::vector<regRect>tempQuestionsL;
-		for (int j = 0; j < rectList.length(); j++)
+		cv::Mat img = cv::imread(m_fileList[i].GetBuffer());
+		std::vector<regRect>tempQuestions;
+		std::vector<regRect>tempGraphics;
+		//遍历题目列表
+		for (int j = 0; j < page_questions_list.length(); j++)
 		{
-			sciter::value item = rectList[j];
+			sciter::value item = page_questions_list[j];
 			int g_left = sciter::value(item.get_item(0)).d;
 			int g_top = sciter::value(item.get_item(1)).d;
 			int g_width = sciter::value(item.get_item(2)).d;
@@ -180,13 +186,31 @@ void thread_ocr(sciter::value cutList)
 			rRect.w = (int)(g_width*g_rate);
 			rRect.h = (int)(g_height*g_rate);
 
-			tempQuestionsL.push_back(rRect);
+			tempQuestions.push_back(rRect);
 			cv::Mat cutImg = img(cv::Rect(rRect.x,rRect.y,rRect.w,rRect.h));
 			TCHAR savePath[256];
 			sprintf(savePath, "%s\\cut_%d.jpg", tempDir, count++);
 			m_cutImageList.push_back(savePath);
 			cv::imwrite(savePath, cutImg);
 			Sleep(100);
+		}
+		//遍历图形列表
+		_cprintf("%d\n", page_graphics_list.length());
+		for (int j = 0; j < page_graphics_list.length(); j++)
+		{
+			sciter::value item = page_graphics_list[j];
+			int g_left = sciter::value(item.get_item(0)).d;
+			int g_top = sciter::value(item.get_item(1)).d;
+			int g_width = sciter::value(item.get_item(2)).d;
+			int g_height = sciter::value(item.get_item(3)).d;
+			double g_rate = img.cols / 700.0;
+			regRect rRect;
+			rRect.x = (int)(g_left*g_rate);
+			rRect.y = (int)(g_top*g_rate);
+			rRect.w = (int)(g_width*g_rate);
+			rRect.h = (int)(g_height*g_rate);
+			_cprintf("%d %d %d %d\n", rRect.x, rRect.h, rRect.w, rRect.h);
+			tempGraphics.push_back(rRect);
 		}
 
 		std::vector<regRect>graphs;
@@ -196,16 +220,17 @@ void thread_ocr(sciter::value cutList)
 		std::vector<string> resultText;
 		std::vector<int> questionNo;
 
-		int curNum = docSlipt->getNum(tempQuestionsL, graphs, questionNo);
-		_cprintf("%d\n", curNum);
+		int curNum = docSlipt->getNum(tempQuestions, tempGraphics, questionNo);
+		
 		FILE *writeFile = fopen("result.txt", "w");
 		for (int j = 0; j < (int)questionNo.size(); j++)
 		{
 			string resultText = docSlipt->getOneOcr(j);
 			fputs(resultText.c_str(), writeFile);
 			const wchar_t *wText = CharToWchar(resultText.c_str());
-			array[arr_num++] = sciter::value(wText);
-			m_root.call_function("get_OCR_Pb", questionNum++, sciter::value(wText));
+			result[resultNum] = sciter::value(wText);
+			m_root.call_function("get_OCR_Pb", resultNum, sciter::value(wText));
+			resultNum++;
 		}
 		fclose(writeFile);
 		
@@ -224,10 +249,13 @@ void thread_ocr(sciter::value cutList)
 	
 	//return sciter::value(array, arr_num);
 }
-sciter::value CChildView::getImageCutList(sciter::value cutList)
+sciter::value CChildView::getImageCutList(sciter::value cut_questions_list, sciter::value cut_graphics_list)
 {
 	m_root = this->get_root();
-	sciter::thread(thread_ocr, cutList);
+	cut_params params;
+	params.cut_questions_list = cut_questions_list;
+	params.cut_graphics_list = cut_graphics_list;
+	sciter::thread(thread_ocr, params);
 	return sciter::value("true");
 }
 
@@ -256,9 +284,14 @@ void thread_open_pdf(sciter::value g_filePath)
 	cv::Mat img, reimg;
 	
 	m_root.call_function("loadProgresInit");
-	//组建json数组，存储识别对象
-	sciter::value ocr_rectList[40];
-	int ocr_num = 0;
+	//组建json数组
+	//题目数组
+	sciter::value ocr_questionsList[400];
+	int ocr_questionsNum = 0;
+	//图形数组
+	sciter::value ocr_graphicsList[100];
+	int ocr_graphicsNum = 0;
+
 	for (int i = 0; i < nNum; i++)
 	{
 		pdfConvert.getPngFromPage(i);
@@ -277,7 +310,6 @@ void thread_open_pdf(sciter::value g_filePath)
 		m_root.call_function("loadProgressCb",i + 1, nNum, urlEncode.c_str()); 
 
 		//检测
-
 		std::vector<regRect>graphs;
 		std::vector<regRect>questions;
 		_cprintf("%s\n", resultPath);
@@ -286,37 +318,39 @@ void thread_open_pdf(sciter::value g_filePath)
 			docSlipt->getRect(resultPath, questions, graphs);
 		}
 		double ocr_rate = 700.0 / img.cols;
-
+		//每张图的图
 		sciter::value arr[100];
 		int arr_num = 0;
-		
-		for (int i = 0; i < (int)graphs.size(); i++)
+
+		for (int j = 0; j < (int)questions.size(); j++)
 		{
-			_cprintf("%d %d %d %d\n", graphs[i].x, graphs[i].y, graphs[i].w, graphs[i].h);
 			sciter::value item[5];
-			item[0] = sciter::value((int)(graphs[i].x*ocr_rate));
-			item[1] = sciter::value((int)(graphs[i].y*ocr_rate));
-			item[2] = sciter::value((int)(graphs[i].w*ocr_rate));
-			item[3] = sciter::value((int)(graphs[i].h*ocr_rate));
-			arr[arr_num++] = sciter::value(item, 4); 
-		}
-		for (int i = 0; i < (int)questions.size(); i++)
-		{
-			_cprintf("%d %d %d %d\n", questions[i].x, questions[i].y, questions[i].w, questions[i].h);
-			sciter::value item[5];
-			item[0] = sciter::value((int)(questions[i].x*ocr_rate));
-			item[1] = sciter::value((int)(questions[i].y*ocr_rate));
-			item[2] = sciter::value((int)(questions[i].w*ocr_rate));
-			item[3] = sciter::value((int)(questions[i].h*ocr_rate));
-			//cv::rectangle(img, cv::Rect(questions[i].x, questions[i].y, questions[i].w, questions[i].h), Scalar(0, 0, 255), 1, 8, 0);//用矩形画矩形窗  
+			item[0] = sciter::value((int)(questions[j].x*ocr_rate));
+			item[1] = sciter::value((int)(questions[j].y*ocr_rate));
+			item[2] = sciter::value((int)(questions[j].w*ocr_rate));
+			item[3] = sciter::value((int)(questions[j].h*ocr_rate));
 			arr[arr_num++] = sciter::value(item, 4);
 		}
-		ocr_rectList[ocr_num++] = sciter::value(arr, arr_num);
-		//cv::imshow("xx", img);
-		//cv::waitKey();
+		//arr_num + 1 ： 防止为0；
+		ocr_questionsList[ocr_questionsNum++] = sciter::value(arr, arr_num+1);
+
+		arr_num = 0;
+		for (int j = 0; j < (int)graphs.size(); j++)
+		{
+			sciter::value item[5];
+			item[0] = sciter::value((int)(graphs[j].x*ocr_rate));
+			item[1] = sciter::value((int)(graphs[j].y*ocr_rate));
+			item[2] = sciter::value((int)(graphs[j].w*ocr_rate));
+			item[3] = sciter::value((int)(graphs[j].h*ocr_rate));
+			arr[arr_num++] = sciter::value(item, 4);
+		}
+		ocr_graphicsList[ocr_graphicsNum++] = sciter::value(arr, arr_num+1);
 	}
-	m_root.call_function("loadProgressDone",sciter::value(ocr_rectList,ocr_num));
-	pdfConvert.freeMemory();	
+
+	m_root.call_function("loadProgressDone", sciter::value(ocr_questionsList, ocr_questionsNum), 
+		sciter::value(ocr_graphicsList, ocr_graphicsNum));
+
+	pdfConvert.freeMemory();
 }
 void thread_open_image(sciter::dom::element root)
 {
@@ -333,8 +367,17 @@ void thread_open_image(sciter::dom::element root)
 	cv::Mat img, reimg;
 	root.call_function("loadProgresInit");
 	int fileSize = (int)m_fileList.size();
+
+	//组建json数组
+	//题目数组
+	sciter::value ocr_questionsList[400];
+	int ocr_questionsNum = 0;
+	//图形数组
+	sciter::value ocr_graphicsList[100];
+	int ocr_graphicsNum = 0;
 	for (int i = 0; i < fileSize; i++)
 	{
+		
 		CString tempPath = m_fileList[i];
 		//获取文件名
 		CString tempFileName = tempPath.Mid(tempPath.ReverseFind('\\') + 1);
@@ -355,10 +398,48 @@ void thread_open_image(sciter::dom::element root)
 		arr[i] = sciter::value(urlEncode.c_str());
 		::Sleep(100);
 		
+		//检测
+		std::vector<regRect>graphs;
+		std::vector<regRect>questions;
+		if (img.cols>1250 && img.rows>2100)
+		{
+			docSlipt->getRect(m_fileList[i].GetBuffer(), questions, graphs);
+		}
+		double ocr_rate = 700.0 / img.cols;
+		//每张图的图
+		sciter::value arr[100];
+		int arr_num = 0;
+
+		for (int j = 0; j < (int)questions.size(); j++)
+		{
+			sciter::value item[5];
+			item[0] = sciter::value((int)(questions[j].x*ocr_rate));
+			item[1] = sciter::value((int)(questions[j].y*ocr_rate));
+			item[2] = sciter::value((int)(questions[j].w*ocr_rate));
+			item[3] = sciter::value((int)(questions[j].h*ocr_rate));
+			arr[arr_num++] = sciter::value(item, 4);
+		}
+		//arr_num + 1 ： 防止为0；
+		ocr_questionsList[ocr_questionsNum++] = sciter::value(arr, arr_num + 1);
+
+		arr_num = 0;
+		for (int j = 0; j < (int)graphs.size(); j++)
+		{
+			sciter::value item[5];
+			item[0] = sciter::value((int)(graphs[j].x*ocr_rate));
+			item[1] = sciter::value((int)(graphs[j].y*ocr_rate));
+			item[2] = sciter::value((int)(graphs[j].w*ocr_rate));
+			item[3] = sciter::value((int)(graphs[j].h*ocr_rate));
+			arr[arr_num++] = sciter::value(item, 4);
+		}
+		_cprintf("%d %d %d %d\n", questions.size(), graphs.size());
+		ocr_graphicsList[ocr_graphicsNum++] = sciter::value(arr, arr_num + 1);
 		root.call_function("loadProgressCb", i + 1, fileSize, urlEncode.c_str());
 		
 	}
-	root.call_function("loadProgressDone");
+	root.call_function("loadProgressDone", sciter::value(ocr_questionsList, ocr_questionsNum),
+		sciter::value(ocr_graphicsList, ocr_graphicsNum));
+
 }
 void CChildView::OnOpenPdf()
 {

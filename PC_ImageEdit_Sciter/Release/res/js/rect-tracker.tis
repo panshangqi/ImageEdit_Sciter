@@ -1,15 +1,19 @@
 // rect tracker implementation.
-function RectTracker(obj) {
+function RectTracker(obj,pID) {
     var This = new Object();
+
+    obj.$append(<div class="rectTracker" #rectTracker_{pID}></div>);
     const container = obj;
+    var mTracker = $(#rectTracker_{pID});
+
     var tracker_pre_left=0;
     var tracker_pre_top=0;
-    var tracker_pre_right=0;
-    var tracker_pre_bottom=0;
+    var tracker_pre_width=0;
+    var tracker_pre_height=0;
     var tracker_left=0;
     var tracker_top=0;
-    var tracker_right=0;
-    var tracker_bottom=0;
+    var tracker_width=0;
+    var tracker_height=0;
     var start_x,start_y;
     var cur_x,cur_y;
     var dragging = false;
@@ -25,14 +29,11 @@ function RectTracker(obj) {
     function max(a,b){
         return a>b?a:b;
     }
-    function drawCanvas(gfx){
-        gc();
-        This.isVisible = true;
-        gfx.translate(0.5,0.5)
-            .strokeColor(color(61,61,245))
-            .strokeWidth(1)
-            .fillColor(color(61,61,245,0.1))
-            .rectangle(tracker_left,tracker_top,tracker_right-tracker_left,tracker_bottom-tracker_top);
+    function fabs(a)
+    {
+        if(a<0)
+            return -a;
+        return a;
     }
     This.getRectLeft = function(){
         return tracker_left;
@@ -40,28 +41,33 @@ function RectTracker(obj) {
     This.getRectTop = function(){
         return tracker_top;
     }
-    This.getRectRight = function(){
-        return tracker_right;
+    This.getRectWidth = function(){
+        return tracker_width;
     }
-    This.getRectBottom = function(){
-        return tracker_bottom;
+    This.getRectHeight = function(){
+        return tracker_height;
     }
     This.hiddenTracker = function() {
-        tracker_left = 0;
-        tracker_top = 0;
-        tracker_right = 0;
-        tracker_bottom = 0;
-        container.paintForeground = null;
-        container.refresh();
+
+        mTracker.style["left"] = "0";
+        mTracker.style["top"] = "0";
+        mTracker.style["width"] = "0";
+        mTracker.style["height"] = "0";
+        tracker_left=0;
+        tracker_top=0;
+        tracker_width=0;
+        tracker_height=0;
         This.isVisible = false;
     }
-    This.showTracker = function(left,top,right,bottom){
-        tracker_left = left;
-        tracker_top = top;
-        tracker_right = right;
-        tracker_bottom = bottom;
-        container.paintForeground = drawCanvas;
-        container.refresh();
+    This.showTracker = function(left,top,width,height){
+        tracker_left=left;
+        tracker_top=top;
+        tracker_width=width;
+        tracker_height=height;
+        mTracker.style["left"] = left+"px";
+        mTracker.style["top"] = top+"px";
+        mTracker.style["width"] = width+"px";
+        mTracker.style["height"] = height+"px";
     }
 
     function onMouseDown(event){
@@ -70,121 +76,151 @@ function RectTracker(obj) {
             dragging = true;
             start_x = event.x;
             start_y = event.y;
-            container.paintForeground = drawCanvas;
         }
         else if(event.buttons == 0x01)
         {
-            container.refresh();
-            if(event.x > tracker_left - 10 && event.x < tracker_left + 10 && event.y > tracker_top && event.y < tracker_bottom)
+            if(fabs(event.x - tracker_left)<5)
             {
-                start_x = event.x;
                 tracker_pre_left = tracker_left;
+                tracker_pre_width = tracker_width;
+                start_x = event.x;
                 isLeft = true;
             }
-            else if(event.x > tracker_right - 10 && event.x < tracker_right + 10 && event.y > tracker_top && event.y < tracker_bottom)
+            else if(fabs(event.x - tracker_left - tracker_width)<5)
             {
+                tracker_pre_left = tracker_left;
+                tracker_pre_width = tracker_width;
                 start_x = event.x;
-                tracker_pre_right = tracker_right;
                 isRight = true;
             }
-            else if(event.y > tracker_top - 10 && event.y < tracker_top + 10 && event.x > tracker_left && event.x < tracker_right)
+            else if(fabs(event.y - tracker_top)<5)
             {
-                start_y = event.y;
                 tracker_pre_top = tracker_top;
+                tracker_pre_height = tracker_height;
+                start_y=event.y;
                 isTop = true;
             }
-            else if(event.y > tracker_bottom - 10 && event.y < tracker_bottom + 10 && event.x > tracker_left && event.x < tracker_right)
+            else if(fabs(event.y - tracker_top - tracker_height)<5)
             {
-                start_y = event.y;
-                tracker_pre_bottom = tracker_bottom;
+                tracker_pre_top = tracker_top;
+                tracker_pre_height = tracker_height;
+                start_y=event.y;
                 isBottom = true;
             }
-            else if(event.x > tracker_left && event.x < tracker_right && event.y > tracker_top && event.y < tracker_bottom)
+            else
             {
+                tracker_pre_left = tracker_left;
+                tracker_pre_top = tracker_top;
                 start_x = event.x;
                 start_y = event.y;
-                tracker_pre_left = tracker_left;
-                tracker_pre_right = tracker_right;
-                tracker_pre_top = tracker_top;
-                tracker_pre_bottom = tracker_bottom;
                 isCenter = true;
             }
         }
     }
     function onMouseMove(event){
-        if(event.x > tracker_left - 10 && event.x < tracker_left + 10 && event.y > tracker_top && event.y < tracker_bottom)
+
+
+        if(fabs(event.x - tracker_left)<5 && event.y > tracker_top && event.y<tracker_top+tracker_height)
         {
+            gc();
             container.style["cursor"]="w-resize";
+            gc();
+            mTracker.style["cursor"]="w-resize";
         }
-        else if(event.x > tracker_right - 10 && event.x < tracker_right + 10 && event.y > tracker_top && event.y < tracker_bottom)
+        else if(fabs(event.x - tracker_left - tracker_width)<5 && event.y > tracker_top && event.y<tracker_top+tracker_height)
         {
+            gc();
             container.style["cursor"]="e-resize";
+            gc();
+            mTracker.style["cursor"]="e-resize";
         }
-        else if(event.y > tracker_top - 10 && event.y < tracker_top + 10 && event.x > tracker_left && event.x < tracker_right)
+        else if(fabs(event.y - tracker_top)<5 && event.x > tracker_left && event.x<tracker_left+tracker_width)
         {
+            gc();
             container.style["cursor"]="n-resize";
+            gc();
+            mTracker.style["cursor"]="n-resize";
         }
-        else if(event.y > tracker_bottom - 10 && event.y < tracker_bottom + 10 && event.x > tracker_left && event.x < tracker_right)
+        else if(fabs(event.y - tracker_top - tracker_height)<5 && event.x > tracker_left && event.x<tracker_left+tracker_width)
         {
+            gc();
             container.style["cursor"]="s-resize";
+            gc();
+            mTracker.style["cursor"]="s-resize";
         }
-        else if(event.x > tracker_left && event.x < tracker_right && event.y > tracker_top && event.y < tracker_bottom)
+        else if(event.x > tracker_left && event.x < tracker_left+tracker_width && event.y > tracker_top && event.y < tracker_top+tracker_height)
         {
+            gc();
             container.style["cursor"]="pointer";
+            gc();
+            mTracker.style["cursor"]="pointer";
         }
-        else{
+        else
+        {
+            gc();
             container.style["cursor"]="default";
         }
         if(dragging)
         {
-            gc();
             cur_x = event.x;
             cur_y = event.y;
             tracker_left = min(start_x,cur_x);
             tracker_top = min(start_y,cur_y);
-            tracker_right = max(start_x,cur_x);
-            tracker_bottom = max(start_y,cur_y);
-            container.refresh();
+            tracker_width = max(start_x,cur_x) - tracker_left;
+            tracker_height = max(start_y,cur_y) - tracker_top;
+
+            gc();
+            mTracker.style["left"] = tracker_left+"px";
+            gc();
+            mTracker.style["top"] = tracker_top+"px";
+            gc();
+            mTracker.style["width"] = tracker_width+"px";
+            gc();
+            mTracker.style["height"] = tracker_height+"px";
         }
+
         else if(isLeft)
         {
-            if(tracker_pre_left + event.x - start_x < tracker_right - 50)
-            {
-                tracker_left = tracker_pre_left + event.x - start_x;
-                container.refresh();
-            }
+            tracker_left = tracker_pre_left + event.x - start_x;
+            tracker_width = tracker_pre_width + tracker_pre_left - event.x;
+            gc();
+            mTracker.style["left"] = tracker_left+"px";
+            gc();
+            mTracker.style["width"] = tracker_width+"px";
+
         }
         else if(isRight)
         {
-            if(tracker_pre_right + event.x - start_x > tracker_left + 50)
-            {
-                tracker_right = tracker_pre_right + event.x - start_x;
-                container.refresh();
-            }
+            tracker_width = tracker_pre_width + event.x - start_x;
+            gc();
+            mTracker.style["width"] = tracker_width+"px";
         }
+
         else if(isTop)
         {
-            if(tracker_pre_top + event.y - start_y < tracker_bottom - 20)
-            {
-                tracker_top = tracker_pre_top + event.y - start_y;
-                container.refresh();
-            }
+            tracker_top = tracker_pre_top + event.y - start_y;
+            tracker_height = tracker_pre_height + start_y - event.y;
+            gc();
+            mTracker.style["top"] = tracker_top+"px";
+            gc();
+            mTracker.style["height"] = tracker_height+"px";
         }
         else if(isBottom)
         {
-            if(tracker_pre_bottom + event.y - start_y > tracker_top + 20)
-            {
-                tracker_bottom = tracker_pre_bottom + event.y - start_y;
-                container.refresh();
-            }
+
+            tracker_height = tracker_pre_height + event.y - start_y;
+            gc();
+            mTracker.style["height"] = tracker_height + "px";
+
         }
         else if(isCenter)
         {
             tracker_left = tracker_pre_left + event.x - start_x;
-            tracker_right = tracker_pre_right + event.x - start_x;
             tracker_top = tracker_pre_top + event.y - start_y;
-            tracker_bottom = tracker_pre_bottom + event.y - start_y;
-            container.refresh();
+            gc();
+            mTracker.style["left"] = tracker_left+"px";
+            gc();
+            mTracker.style["top"] = tracker_top+"px";
         }
     }
     function onMouseUp(event){
@@ -194,7 +230,7 @@ function RectTracker(obj) {
         isTop = false;
         isBottom = false;
         isCenter = false;
-
+        This.isVisible = true;
     }
     function onMouseLeave(){
         isLeft = false;
@@ -207,6 +243,7 @@ function RectTracker(obj) {
     container.subscribe("mousemove",onMouseMove);
     container.subscribe("mouseup",onMouseUp);
     container.subscribe("mouseleave",onMouseLeave);
+
 
     return This;
 }
