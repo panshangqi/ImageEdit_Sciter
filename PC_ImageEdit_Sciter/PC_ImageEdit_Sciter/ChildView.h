@@ -43,7 +43,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	// ²Ù×÷
 public:
-	
+	void onResizeView(int pWidth, int pHeight);
 public:
 
 	sciter::sync::gui_thread_ctx _;
@@ -67,5 +67,7 @@ public:
 	afx_msg void OnOpenImage();
 	afx_msg void OnAppExit();
 	afx_msg void OnCloseDoc();
+	afx_msg void OnOcrRun();
+
 };
 

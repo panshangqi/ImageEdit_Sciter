@@ -46,6 +46,7 @@ BEGIN_MESSAGE_MAP(CChildView, CWnd)
 	ON_COMMAND(ID_OPEN_IMAGE, &CChildView::OnOpenImage)
 	ON_COMMAND(ID_APP_EXIT, &CChildView::OnAppExit)
 	ON_COMMAND(ID_CLOSE_DOC, &CChildView::OnCloseDoc)
+	ON_COMMAND(ID_OCR_RUN, &CChildView::OnOcrRun)
 END_MESSAGE_MAP()
 
 const double m_imgRate = 0.5; //原图和压缩图的比例
@@ -69,7 +70,6 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if (!CWnd::PreCreateWindow(cs))
 		return FALSE;
-
 	cs.dwExStyle |= WS_EX_CLIENTEDGE;
 	cs.style &= ~WS_BORDER;
 	cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS, 
@@ -163,10 +163,12 @@ void thread_ocr(cut_params params)
 	m_cutImageList.clear();
 	sciter::value result[1000];
 	int resultNum = 1;
+	strCoding url;
 	for (int i = 0; i < pageNum; i++)
 	{
 		sciter::value page_questions_list = params.cut_questions_list[i];
 		sciter::value page_graphics_list = params.cut_graphics_list[i];
+		vector<CString> page_cut_image_list;
 
 		cv::Mat img = cv::imread(m_fileList[i].GetBuffer());
 		std::vector<regRect>tempQuestions;
@@ -193,6 +195,9 @@ void thread_ocr(cut_params params)
 			m_cutImageList.push_back(savePath);
 			cv::imwrite(savePath, cutImg);
 			Sleep(100);
+			 
+			string urlEncode = url.UrlPathEncode(savePath);
+			page_cut_image_list.push_back(urlEncode.c_str());
 		}
 		//遍历图形列表
 		_cprintf("%d\n", page_graphics_list.length());
@@ -229,7 +234,8 @@ void thread_ocr(cut_params params)
 			fputs(resultText.c_str(), writeFile);
 			const wchar_t *wText = CharToWchar(resultText.c_str());
 			result[resultNum] = sciter::value(wText);
-			m_root.call_function("get_OCR_Pb", resultNum, sciter::value(wText));
+			m_root.call_function("get_OCR_Pb", resultNum, sciter::value(page_cut_image_list[j].GetBuffer()),sciter::value(wText));
+			_cprintf("%s\n", page_cut_image_list[j].GetBuffer());
 			resultNum++;
 		}
 		fclose(writeFile);
@@ -581,4 +587,20 @@ void CChildView::OnCloseDoc()
 	
 	sciter::dom::element root = this->get_root();
 	root.call_function("QueryDialog");
+}
+
+
+void CChildView::OnOcrRun()
+{
+	// TODO: 在此添加命令处理程序代码
+	sciter::dom::element root = this->get_root();
+	root.call_function("OCR_RUN");
+}
+
+
+void CChildView::onResizeView(int pWidth, int pHeight)
+{
+	_cprintf("%d %d\n", pWidth, pHeight);
+	sciter::dom::element root = this->get_root();
+	root.call_function("onResizeFrame", sciter::value(pWidth), sciter::value(pHeight));;
 }

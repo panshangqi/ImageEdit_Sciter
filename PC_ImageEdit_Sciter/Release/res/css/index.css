@@ -1,47 +1,54 @@
 body{
     margin: 0;
     background-color: #555;
+    overflow: hidden;
+}
+.tool_box{
+    position: relative;
+    width:1348px;
+    height:26px;
+    background-color: #eeeeee;
+ }
+.div_question,.div_graphy,.div_runocr,.div_pen{
+    float: left;
+    margin-top: 3px;
+    margin-left: 15px;
+    width:35px;
+    height:20px;
+    border-radius: 2px;
+}
+.tool_box img:hover{
+    cursor: pointer;
+    box-shadow: 0 0 4px #111111;
+}
+.div_status{
+    float: left;
+    margin-top: 3px;
+    margin-left: 5px;
+    width:35px;
+    height:20px;
+}
+.pen_status{
+
+    width:8px;
+    height:8px;
+    border-radius: 4px;
+    margin-top: 6px;
+    background-color: #32CD32;
+}
+.main_frame{
+    position: relative;
+    width:1348px;
+    height: 600px;
+    background-color: #395df4;
 }
 
-.main_frame{
-    width:1348px;
-    height:720px;
-}
-.nav_box{
-    float:left;
-    width:110px;
-    height:640px;
-    border:2px solid #777;
-    margin:0;
-    text-align: center;
-    background-color: #ccc;
-    overflow:auto;
-}
-.nav_box img{
-    margin:0px auto;
-    width:90px;
-    cursor: pointer;
-    border:1px solid #444;
-    background-repeat: no-repeat;
-}
-.nav_box img:hover{
-    border:1px solid #395df4;
-    box-shadow:0 0 10px #6e88f7;
-}
-.nav_page{
-    margin:5px auto 2px;
-    width:90px;
-    height:14px;
-    line-height: 14px;
-    text-align: left;
-    font-size:11px;
-}
 .view_box{
     float:left;
     margin: 0;
     border:2px solid #777;
     width:800px;
-    height:640px;
+    height:100%;
     text-align: center;
     background-image: url(../image/black_white.jpg);
     overflow:auto;
@@ -67,7 +74,7 @@ body{
     background-color: #395df415;
     z-index: 20px;
 }
-.rect_box{
+.rect_question_box{
     position: absolute;
     color:#FFD70000;
     left:0;
@@ -78,45 +85,41 @@ body{
     background-color: #00FF0020;
     z-index: 1;
 }
-.rect_box:hover{
+.rect_question_box:hover{
     cursor:pointer;
     box-shadow:0 0 5px #00FF00;
+}
+.rect_graphics_box{
+    position: absolute;
+    color:#FFD70000;
+    left:0;
+    top:0;
+    width:0;
+    height:0;
+    border:1px solid #FFD700;
+    background-color: #FFD70020;
+    z-index: 1;
+}
+.rect_graphics_box:hover{
+    cursor:pointer;
+    box-shadow:0 0 5px #FFD700;
 }
 
 .result_box{
     float: left;
     margin: 0;
     width:540px;
-    height:640px;
+    height:100%;
     border:2px solid #777;
     background-color: #aaa;
     overflow:hidden;
-}
-.run_bar{
-    width:100%;
-    height:25px;
-    background-color: #777;
-}
-.flush_button{
-    margin-left: 5px;
-    margin-top: 2px;
-    width:28px;
-    height:28px;
-    background-repeat: no-repeat;
-    background-image: url(../image/flush1.png);
-    background-size: 28px auto;
-    overflow: hidden;
-}
-.flush_button:hover{
-    cursor:pointer;
-    background-image: url(../image/flush_hover.png);
 }
 .edit_box{
     position: relative;
     float: left;
     margin: 0;
     width:100%;
-    height:615px;
+    height:100%;
 
     background-color: #aaaaaa;
     overflow:auto;
@@ -124,14 +127,16 @@ body{
 .edit_box textarea{
 
     display: block;
-    margin-top: 8px;
-    width:600px;
-    height: auto;
+    margin-top: 5px;
+    width:90%;
+    min-height:20px;
+    height:auto;
+    resize: none;
     overflow-y:visible;
 }
 .edit_box img{
     width:90%;
-    margin: 5px auto;
+    margin-top: 5px;
 }
 .edit_box img:hover{
     cursor:pointer;
@@ -150,14 +155,15 @@ body{
 .load_progress_box{
 
     position:absolute;
-    margin:300px auto;
+    top:45%;
+    left:20%;
     width:700px;
     height:50px;
     border: 1px solid #444;
     border-radius: 5px;
     background-color: #555;
     box-shadow: 3px 3px 10px #000;
-    z-index: 0;
+    z-index: 20;
 }
 .progress_bar{
     width:600px;
@@ -175,7 +181,8 @@ body{
 }
 .copyed{
     position:absolute;
-    margin:300px auto;
+    left:50%;
+    top:50%;
     width:120px;
     height:40px;
     line-height: 40px;
@@ -184,7 +191,7 @@ body{
     color:#ffffff;
     background-color: "#55555500";
     transition: background-color(quart-in,0.7s,quart-out);
-    z-index: 0;
+    z-index: 35;
 }
 
 .ocr_box{

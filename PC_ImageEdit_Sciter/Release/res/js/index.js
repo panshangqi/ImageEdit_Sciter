@@ -13,7 +13,22 @@ var maxWidth = 1400;
 var minWidth = 500;
 var trackerObj = [];
 
-var questionsTextList = [];
+var pen_question_color = "#32CD32";
+var pen_graphics_color = "#df9402";
+var pen_color = pen_question_color
+$(#question_button).on("click",function(){
+    pen_color = pen_question_color;
+    gc();
+    $(#pen_status).style["background-color"] = pen_color;
+})
+$(#graphy_button).on("click",function(){
+    pen_color = pen_graphics_color;
+    gc();
+    $(#pen_status).style["background-color"] = pen_color;
+})
+$(#runocr_button).on("click",function(){
+    OCR_RUN();
+})
 
 function alert(msg)
 {
@@ -34,7 +49,6 @@ function init()
     pictureList = [];
     picturePxList=[];
     trackerObj = [];
-    questionsTextList = [];
     pictureListSize = 0;
     curFoucsID = 0;
     rectID=0;
@@ -93,15 +107,12 @@ function QueryDialog()
             {
                 $(#pictureCanvas_{i}).remove();
             }
-            for(var i=0;i<pictureListSize;i++)
+            for(var child in $(#edit_box))
             {
-                $(#list_{i}).remove();
+                if(child)
+                    child.remove();
             }
-            for(var i=0;i<pictureListSize;i++)
-            {
-                $(#title_page_{i}).remove();
-            }
-
+            $(#edit_box).clear();
             for(var i=0;i<rectID;i++)
             {
                 var obj = $(#rect_{i});
@@ -116,7 +127,7 @@ function QueryDialog()
 
 function loadProgresInit()
 {
-    $(#main_frame).$append(<div class="load_progress_box" #load_progress_box> <div class="progress_bar" #progress_bar> <div class="cur_value_bar" #cur_value_bar></div> </div> </div>);
+    $(body).$append(<div class="load_progress_box" #load_progress_box> <div class="progress_bar" #progress_bar> <div class="cur_value_bar" #cur_value_bar></div> </div> </div>);
 }
 function loadProgressCb(m_id,total,pngPath)
 {
@@ -138,7 +149,7 @@ function loadProgressDone(ocr_questionList,ocr_graphicsList)
         var ocr_rectlist = ocr_questionList[i];
         for(var j=0;j<ocr_rectlist.length-1;j++)
         {
-            $(#pictureCanvas_{i}).$append(<div class="rect_box" #rect_{rectID}  id="rect_{rectID}"></div>);
+            $(#pictureCanvas_{i}).$append(<div class="rect_question_box" #rect_{rectID}  id="rect_{rectID}"></div>);
             var mLeft = ocr_rectlist[j][0];
             var mTop = ocr_rectlist[j][1];
             var mWidth = ocr_rectlist[j][2];
@@ -178,7 +189,7 @@ function loadProgressDone(ocr_questionList,ocr_graphicsList)
         for(var j=0;j<ocr_rectlist.length-1;j++)
         {
 
-            $(#pictureCanvas_{i}).$append(<div class="rect_box" #rect_{rectID}  id="rect_{rectID}"></div>);
+            $(#pictureCanvas_{i}).$append(<div class="rect_graphics_box" #rect_{rectID}  id="rect_{rectID}"></div>);
             var mLeft = ocr_rectlist[j][0];
             var mTop = ocr_rectlist[j][1];
             var mWidth = ocr_rectlist[j][2];
@@ -208,10 +219,7 @@ function loadProgressDone(ocr_questionList,ocr_graphicsList)
             $(#rect_{rectID}).style["width"] = mWidth+"px";
             gc();
             $(#rect_{rectID}).style["height"] = mHeight +"px";
-            gc();
-            $(#rect_{rectID}).style["background-color"] = "#FFD70020";
-            gc();
-            $(#rect_{rectID}).style["border"] = "1px solid #FFD700";
+
             rectID++;
         }
     }
@@ -246,29 +254,32 @@ function loadProgressDone(ocr_questionList,ocr_graphicsList)
 }
 function get_OCR_init()
 {
-    $(#edit_box).$append(<div class="ocr_box" #ocr_box></div>)
+    $(#result_box).$append(<div class="ocr_box" #ocr_box></div>)
 }
-function get_OCR_Pb(percent,questionText)
+function get_OCR_Pb(percent,cutImagePath,questionText)
 {
     $(#ocr_box).content(percent+"");
+    $(#edit_box).$append(<img #cut_img_{percent} id="cut_img_{percent}"></img>);
+    $(#cut_img_{percent}).attributes["src"] = cutImagePath;
     $(#edit_box).$append(<textarea class="question_text" #cut_{percent} id="cut_{percent}"></textarea>);
-    questionsTextList.push(percent);
-    $(#cut_{percent}).content(questionText);
+    $(#cut_{percent}).appendText(questionText);
 }
 function get_OCR_Done()
 {
     $(#ocr_box).remove();
 }
-$(#flush_button).on("click",function(){
+function OCR_RUN(){
 
-    for(var i=0;i<questionsTextList.length;i++)
+    for(var child in $(#edit_box))
     {
-        $(#cut_{questionsTextList[i]}).content("");
+        if(child)
+            child.remove();
     }
     $(#edit_box).clear();
 
     var temp_questions_list=[];
     var temp_graphics_list=[];
+    var flags = 0;
     for(var i=0;i<pictureListSize;i++)
     {
         var page_questions_list=[];
@@ -287,6 +298,7 @@ $(#flush_button).on("click",function(){
                     item.push(pictureList[i].rectList[j].top);
                     item.push(pictureList[i].rectList[j].width);
                     item.push(pictureList[i].rectList[j].height);
+                    flags = 1;
                     page_questions_list.push(item);
                 }
                 else{
@@ -303,9 +315,14 @@ $(#flush_button).on("click",function(){
         temp_graphics_list.push(page_graphics_list);
     }
 
+    if(!flags)
+    {
+        view.msgbox(null,"没有选择任何内容！！！");
+        return ;
+    }
     view.getImageCutList(temp_questions_list,temp_graphics_list);
 
-})
+}
 function updateRectListWH(sub)
 {
     var mRate = curWidth/700.0;
@@ -348,11 +365,20 @@ function windowKeyHandler() // install movable window handler
             var mTop = tracker.getRectTop();
             var mWidth = tracker.getRectWidth();
             var mHeight = tracker.getRectHeight();
-
+            var mType = 0;
             if(mWidth > 5 && mHeight > 5)
             {
                 gc();
-                $(#pictureCanvas_{curFoucsID}).$append(<div class="rect_box" #rect_{rectID}></div>);
+                if(pen_color == pen_question_color)
+                {
+                    $(#pictureCanvas_{curFoucsID}).$append(<div class="rect_question_box" #rect_{rectID}></div>);
+                    mType = 1;
+                }
+                else if(pen_color == pen_graphics_color)
+                {
+                    $(#pictureCanvas_{curFoucsID}).$append(<div class="rect_graphics_box" #rect_{rectID}></div>);
+                    mType = -1;
+                }
                 gc();
                 $(#rect_{rectID}).style["left"] = mLeft+"px";
                 gc();
@@ -361,7 +387,7 @@ function windowKeyHandler() // install movable window handler
                 $(#rect_{rectID}).style["width"] = mWidth+"px";
                 gc();
                 $(#rect_{rectID}).style["height"] = mHeight +"px";
-                gc();
+
 
                 $(#rect_{rectID}).on("mousedown",function()
                 {
@@ -390,7 +416,7 @@ function windowKeyHandler() // install movable window handler
                 var orgHeight = (mHeight*g_rate).toInteger();
                 var item = {
                     id:rectID,
-                    type:1,
+                    type:mType,
                     left:orgLeft,
                     top:orgTop,
                     width:orgWidth,
@@ -498,7 +524,8 @@ function windowKeyHandler() // install movable window handler
             function copyedInit(ti)
             {
                 gc();
-                $(#main_frame).$append(<div class="copyed" #copyed>复制完成</div>);
+                $(body).$append(<div class="copyed" #copyed>复制完成</div>);
+
                 gc();
                 $(#copyed).style["background-color"] = "#555555ff";
             }
@@ -512,11 +539,12 @@ function windowKeyHandler() // install movable window handler
                 else if(ti==1)
                 $(#copyed).remove();
             }
+
             view.copyBmpToClipboard(curFoucsID,rect,copyedInit,copyedDone);
-
-
         }
+
     }
+
     view.root.subscribe(onKeyDown, Event.KEY, Event.KEY_DOWN );
     view.root.subscribe(onKeyUp, Event.KEY, Event.KEY_UP );
 }

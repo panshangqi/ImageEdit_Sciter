@@ -66,6 +66,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	SetIcon(m_hIcon, TRUE); // Set big icon 设置大图标
 	SetIcon(m_hIcon, FALSE); // Set small icon 设置小图标
 	
+							 //设置窗口居中
+	SetWindowPos(NULL, 0, 0, 1400, 700, SWP_NOMOVE);
+	CenterWindow(GetDesktopWindow());
 	//TODO 添加自定义代码
 	OnCreateTray(m_hIcon, "试卷扫描客户端", "");
 	return 0;
@@ -193,14 +196,15 @@ void CMainFrame::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	lpMMI->ptMinTrackSize.x = 800;   //x宽度    
 	lpMMI->ptMinTrackSize.y = 600;   //y高度    
-
+	
 	CFrameWnd::OnGetMinMaxInfo(lpMMI);
 }
 
 
 void CMainFrame::OnSize(UINT nType, int cx, int cy)
 {
-	//_cprintf("%d %d\n", cx, cy);
+	m_wndView.onResizeView(cx, cy);
+
 	CFrameWnd::OnSize(nType, cx, cy);
 
 	// TODO: 在此处添加消息处理程序代码

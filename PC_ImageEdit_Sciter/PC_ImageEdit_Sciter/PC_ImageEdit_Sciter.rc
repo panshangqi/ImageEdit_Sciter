@@ -63,15 +63,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Menu
 //
 
@@ -96,6 +87,10 @@ BEGIN
         MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
         MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
         MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "工具"
+    BEGIN
+        MENUITEM "OCR识别",                       ID_OCR_RUN
     END
     POPUP "帮助(&H)"
     BEGIN
